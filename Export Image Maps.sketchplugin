@@ -1,4 +1,5 @@
-var pages = [doc pages],
+var app = [NSApplication sharedApplication],
+    pages = [doc pages],
     panel = [NSOpenPanel openPanel],
     artboards = [];
 
@@ -16,7 +17,7 @@ function gatherArtboards() {
 }
 
 function generateImageMaps(path) {
-  for (var i=0; i<[artboards count]; i++) { 
+  for (var i=0; i<10; i++) { 
     var longString = "<img src='"+i+".jpg' usemap='1'><map id='1' name='1'>\n";
     var artboard = [artboards objectAtIndex:i];
     [doc saveArtboardOrSlice:artboard toFile:path+i+".jpg"];
@@ -50,9 +51,7 @@ if (result == 1) {
   var path = String([panel URLs][0]).slice(7);
   gatherArtboards();
   generateImageMaps(path);
-  [doc showMessage:"Done!"]
+  [app displayDialog:"Done!" withTitle:"Success"];
 } else {
-  var app = [NSApplication sharedApplication];
   [app displayDialog:"You must select a directory" withTitle:"Error"];
 }
-
