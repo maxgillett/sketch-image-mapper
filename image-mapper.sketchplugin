@@ -1,0 +1,58 @@
+var pages = [doc pages],
+    panel = [NSOpenPanel openPanel],
+    artboards = [];
+
+[panel setAllowsMultipleSelection:0];
+[panel setCanChooseDirectories:1];
+[panel setCanChooseFiles:0];
+[panel setFloatingPanel:1];
+
+function gatherArtboards() {
+  for (var i=0; i<([pages count]); i++) { 
+    var page = pages[i];
+    artboards.push([page artboards]);
+  }
+  artboards = artboards[0];
+}
+
+function generateImageMaps(path) {
+  for (var i=0; i<[artboards count]; i++) { 
+    var longString = "<img src='"+i+".jpg' usemap='1'><map id='1' name='1'>\n";
+    var artboard = [artboards objectAtIndex:i];
+    [doc saveArtboardOrSlice:artboard toFile:path+i+".jpg"];
+
+    var children = [artboard children];
+    var layers = [];
+    for (var j=0; j<[children count]; j++) {
+      var layer = [children objectAtIndex:j];
+      if ([layer name].slice(0,1) == "&") {
+        layers.push(layer);
+      }
+    }
+    for (var k=0; k<layers.length; k++) {
+      var absrect = [(layers[k]) absoluteRect]),
+          x1 = Math.round([absrect rulerX]),
+          y1 = Math.round([absrect rulerY]),
+          x2 = Math.round(x1 + [absrect width]),
+          y2 = Math.round(y1 + [absrect height]);
+
+      var string = "<area shape='rect' alt='' title='' coords='"+x1+","+y1+","+x2+","+y2+"' href='#' target='' />\n"
+      longString = longString + string;
+    }
+    var longString = longString + "</map>";
+    var string = [@"" stringByAppendingString:longString];
+    [string writeToFile:path+i+".html" atomically:true encoding:NSUTF8StringEncoding error:null]
+  }
+}
+
+var result = [panel runModalForDirectory:NSHomeDirectory() file:nil];
+if (result == 1) {
+  var path = String([panel URLs][0]).slice(7);
+  gatherArtboards();
+  generateImageMaps(path);
+  [doc showMessage:"Done!"]
+} else {
+  var app = [NSApplication sharedApplication];
+  [app displayDialog:"You must select a directory" withTitle:"Error"];
+}
+
